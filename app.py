@@ -37,7 +37,8 @@ st.markdown("""
 @st.cache_data
 def load_data():
     try:
-        spot_df = pd.read_csv('Historical_Spot_15min/NIFTY_50_INDEX_5Yr_Spot_15min.csv')
+        # File paths updated to read directly from the GitHub root directory
+        spot_df = pd.read_csv('NIFTY_50_INDEX_5Yr_Spot_15min.csv')
         opt_df = pd.read_csv('NIFTY_50_5_Years_15min_ATM_Call.csv')
     except Exception as e:
         st.error(f"Data loading error: Ensure CSV files are correctly named and located in the repository. {e}")
@@ -101,6 +102,7 @@ with c1:
     st.subheader("1. The Inescapable Theta Bleed")
     st.markdown("""
     **The Retail Myth:** Options provide explosive intraday gains.
+    
     **The Quantitative Truth:** When stripping away overnight gap lotteries to isolate pure 1-hour intraday holds, **every single 15-minute time block yields a negative median return.** Theta (time decay) acts as a constant, inescapable tax on the buyer.
     """)
     time_edge = df.groupby('time_str')['fwd_opt_return_1h'].apply(lambda x: (x > 0).mean() * 100).reset_index()
@@ -114,6 +116,7 @@ with c2:
     st.subheader("2. The 'FOMO' Momentum Trap")
     st.markdown("""
     **The Retail Myth:** Buy the breakout when momentum is highly bullish.
+    
     **The Quantitative Truth:** Buying an ATM call immediately following a "Strong Bullish" 1-hour move yields the **absolute worst outcome** in the entire 5-year dataset. By the time the trend is obvious, the premium is overpriced, and post-momentum consolidation destroys the buyer.
     """)
     mom_edge = df.groupby('momentum_bucket')['fwd_opt_return_1h'].mean().reset_index()
@@ -131,6 +134,7 @@ with c3:
     st.subheader("3. Volatility Crush (Vega Risk)")
     st.markdown("""
     **The Retail Myth:** Buy options when volatility is expanding.
+    
     **The Quantitative Truth:** Expanding volatility drastically inflates option premiums. Entering during **'Extreme Expansion'** forces the underlying index to make a spectacular, outsized move just for the trade to break even. When it fails to do so, the resulting Vega crush decimates the capital.
     """)
     vol_edge = df.groupby('vol_regime')['fwd_opt_return_1h'].mean().reset_index()
@@ -143,7 +147,8 @@ with c4:
     st.subheader("4. The Negative Skew Distribution")
     st.markdown("""
     **The Retail Myth:** Tight stop losses will save the account.
-    **The Quantitative Truth:** During our dynamic simulation testing, applying a fixed 10% stop loss resulted in a **"whipsaw" effect**, dropping win rates to 40% as standard 15-minute noise hunted the stops. Expanding stops using ATR (Average True Range) simply resulted in larger absolute losses. Mechanical option buying possesses a heavy left-tail risk.
+    
+    **The Quantitative Truth:** During our dynamic simulation testing, applying a fixed 10% stop loss resulted in a **"whipsaw" effect**, dropping win rates to 40% as standard 15-minute noise hunted the stops. Expanding stops using ATR simply resulted in larger absolute losses. Mechanical option buying possesses a heavy left-tail risk.
     """)
     fig_dist = px.histogram(df, x="fwd_opt_return_1h", nbins=100, color_discrete_sequence=['#FF4B4B'])
     fig_dist.add_vline(x=0, line_dash="dash", line_color="white")
